@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-frontend-plugin:0.0.44"
+        classpath 'org.jetbrains.kotlin:kotlin-frontend-plugin:0.0.44'
     }
 }
 
@@ -17,10 +17,10 @@ apply plugin: 'org.jetbrains.kotlin.frontend'
 
 repositories {
     jcenter()
-    maven { url "http://dl.bintray.com/kotlin/ktor" }
     mavenCentral()
-    maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
-    maven { url "https://kotlin.bintray.com/kotlin-js-wrappers/" }
+    maven { url 'http://dl.bintray.com/kotlin/ktor' }
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+    maven { url 'https://kotlin.bintray.com/kotlin-js-wrappers/' }
 }
 
 kotlin {
@@ -68,17 +68,20 @@ kotlin {
 }
 
 compileKotlinJs {
-    kotlinOptions.metaInfo = true
-    kotlinOptions.outputFile = "$project.buildDir.path/js/${project.name}.js"
-    kotlinOptions.sourceMap = true
-    kotlinOptions.moduleKind = 'commonjs'
-    kotlinOptions.main = "call"
+    kotlinOptions {
+        metaInfo = true
+        outputFile = '$project.buildDir.path/js/${project.name}.js'
+        sourceMap = true
+        moduleKind = 'umd'
+        main = 'call'
+    }
 }
 
 kotlinFrontend {
     npm {
         dependency("react", "16.6.0")
         dependency("react-dom", "16.6.0")
+        dependency("styled-components", "3.4.6")
     }
     webpackBundle {
         bundleName = "main"
