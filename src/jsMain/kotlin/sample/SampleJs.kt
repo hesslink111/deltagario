@@ -1,6 +1,7 @@
 package sample
 
 import react.dom.render
+import renderer.renderer
 import kotlin.browser.document
 
 actual class Sample {
@@ -14,5 +15,6 @@ actual object Platform {
 actual fun nativeMain(args: Array<String>) {
     render(document.getElementById("react-root")) {
         +"Hello World"
+        renderer()
     }
 }
