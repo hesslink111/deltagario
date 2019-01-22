@@ -7,7 +7,7 @@ plugins {
 repositories {
     jcenter()
     mavenCentral()
-    maven { url 'http://dl.bintray.com/kotlin/ktor' }
+    maven { url "https://kotlin.bintray.com/kotlin/kotlinx" }
     maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     maven { url 'https://kotlin.bintray.com/kotlin-js-wrappers/' }
     maven { url "https://dl.bintray.com/danfma/kotlin-kodando" }
@@ -36,7 +36,6 @@ kotlin {
         commonMain {
             dependencies {
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
-                implementation "org.koin:koin-core:1.0.2"
             }
         }
         commonTest {
@@ -48,6 +47,7 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+                implementation "org.java-websocket:Java-WebSocket:1.3.9"
             }
         }
         jvmTest {
@@ -112,12 +112,13 @@ run.dependsOn task('create-web-output', dependsOn: 'webpack-bundle') << {
     }
 }
 
-run.dependsOn task('run-jar', dependsOn: 'jar') << {
+run.dependsOn(build)
+
+task('run-jar', dependsOn: 'run') << {
     javaexec {
         classpath = files('build/libs/deltagario-jvm.jar')
         classpath += buildscript.configurations.classpath
+        classpath += configurations.jvmRuntimeClasspath
         main = "AppKt"
     }
 }
-
-run.dependsOn(build)

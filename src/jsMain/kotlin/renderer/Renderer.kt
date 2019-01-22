@@ -52,8 +52,8 @@ class Renderer: RComponent<RProps, Renderer.State>() {
                 text {
                     attrs["x"] = x
                     attrs["y"] = y
-                    attrs["text-anchor"] = "middle"
-                    attrs["alignment-baseline"] = "middle"
+                    attrs["textAnchor"] = "middle"
+                    attrs["alignmentBaseline"] = "middle"
                     attrs["fill"] = Color.white
                     +player.name
                 }
