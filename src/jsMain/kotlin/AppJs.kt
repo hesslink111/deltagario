@@ -1,3 +1,4 @@
+import connection.serverConnection
 import react.dom.render
 import renderer.renderer
 import state.createStateRx
@@ -12,6 +13,7 @@ val clientStateRx = createStateRx()
 actual fun nativeMain(args: Array<String>) {
     render(document.getElementById("react-root")) {
         +"Hello World"
+        serverConnection()
         renderer()
     }
 }
