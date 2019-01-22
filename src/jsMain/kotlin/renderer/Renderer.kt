@@ -1,35 +1,37 @@
 package renderer
 
-import entities.Food
-import entities.Player
+import clientStateRx
 import entities.radius
-import kotlinx.css.pc
-import kotlinx.css.pct
+import kodando.rxjs.Subscription
+import kodando.rxjs.subscribeNext
+import kotlinx.css.Color
 import kotlinx.css.vh
 import kotlinx.css.vw
 import kotlinx.html.HTMLTag
-import react.RBuilder
-import react.RComponent
-import react.RProps
-import react.RState
+import react.*
 import react.dom.RDOMBuilder
-import react.dom.svg
 import react.dom.tag
+import resources.rgb
+import state.ClientState
 import styled.css
 import styled.styledSvg
 
 class Renderer: RComponent<RProps, Renderer.State>() {
 
     interface State: RState {
-        var players: List<Player>
-        var food: List<Food>
+        var clientState: ClientState
     }
 
-    init {
-        state = object: State {
-            override var players = listOf(Player(Pair(10.0, 10.1), 100.0))
-            override var food = listOf(Food(Pair(20.0, 20.0), 20.0))
-        }
+    private val subscription = Subscription {}
+
+    override fun componentWillMount() {
+        subscription.add(clientStateRx.subscribeNext { cState ->
+            setState { clientState = cState }
+        })
+    }
+
+    override fun componentWillUnmount() {
+        subscription.unsubscribe()
     }
 
     override fun RBuilder.render() {
@@ -38,12 +40,31 @@ class Renderer: RComponent<RProps, Renderer.State>() {
                 width = 100.vw
                 height = 100.vh
             }
-            state.players.forEach { player ->
+
+            state.clientState.players.forEach { player ->
                 val (x, y) = player.position
                 circle {
                     attrs["cx"] = x
                     attrs["cy"] = y
                     attrs["r"] = player.radius
+                    attrs["fill"] = player.color.rgb
+                }
+                text {
+                    attrs["x"] = x
+                    attrs["y"] = y
+                    attrs["text-anchor"] = "middle"
+                    attrs["alignment-baseline"] = "middle"
+                    attrs["fill"] = Color.white
+                    +player.name
+                }
+            }
+
+            state.clientState.food.forEach { food ->
+                val (x, y) = food.position
+                circle {
+                    attrs["cx"] = x
+                    attrs["cy"] = y
+                    attrs["r"] = food.radius
                 }
             }
         }
@@ -52,7 +73,7 @@ class Renderer: RComponent<RProps, Renderer.State>() {
 
 inline fun RBuilder.renderer() = child(Renderer::class) {}
 
-inline fun RBuilder.circle(block: RDOMBuilder<HTMLTag>.() -> Unit): Unit {
+inline fun RBuilder.circle(block: RDOMBuilder<HTMLTag>.() -> Unit) {
     tag(block) { consumer -> HTMLTag(
         "circle",
         consumer,
@@ -61,4 +82,16 @@ inline fun RBuilder.circle(block: RDOMBuilder<HTMLTag>.() -> Unit): Unit {
         true,
         false
     ) }
+}
+
+inline fun RBuilder.text(block: RDOMBuilder<HTMLTag>.() -> Unit) {
+    tag(block) { consumer -> HTMLTag(
+        "text",
+        consumer,
+        emptyMap(),
+        null,
+        true,
+        false
+    )
+    }
 }
