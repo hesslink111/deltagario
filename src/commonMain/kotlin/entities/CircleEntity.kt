@@ -12,3 +12,7 @@ interface CircleEntity {
 }
 
 val CircleEntity.radius get() = sqrt(size / PI)
+
+operator fun Pair<Float, Float>.times(float: Float): Pair<Float, Float> = (first * float) to (second * float)
+
+operator fun Pair<Float, Float>.plus(vector: Pair<Float, Float>) = (first + vector.first) to (second + vector.second)

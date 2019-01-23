@@ -8,7 +8,7 @@ class GameStateClient: GameState() {
 
     private val stateChangeSubject = Subject<Unit>()
 
-    override fun submitAction(action: Action) {
+    override suspend fun submitAction(action: Action) {
         super.submitAction(action)
         stateChangeSubject.next(Unit)
     }

@@ -47,7 +47,9 @@ class ServerConnection {
         val bytes = message.toByteArray()
         val array = Uint8Array(bytes.size).apply { bytes.forEachIndexed { i, b -> this[i] = b } }
         try {
-            socket?.send(array)
+            if(socket?.readyState == WebSocket.OPEN) {
+                socket?.send(array)
+            }
         } catch(ex: Exception) {
             println("Exception while sending message: $ex")
         }

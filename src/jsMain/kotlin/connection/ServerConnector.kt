@@ -39,12 +39,13 @@ class ServerConnector: RComponent<ServerConnector.Props, RState>(), CoroutineSco
             .socketMessageObservable
             .subscribeNext { message ->
                 val action = message.toAction()
-                props.gameState.submitAction(action)
+                println("Got action from server: $action")
+                launch { props.gameState.submitAction(action) }
             })
     }
 
     private suspend fun reconnectDelayed() {
-        println("Will reconnect after 5 seconds")
+        println("Will reconnect after 10 seconds")
         delay(10000)
 
         // Nobody else has tried to open the socket

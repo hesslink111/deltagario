@@ -1,6 +1,8 @@
 package renderer
 
 import connection.ServerConnection
+import gamestate.SetPlayerDirection
+import gamestate.toMessage
 import kodando.rxjs.Observable
 import kodando.rxjs.Subscription
 import kodando.rxjs.Unsubscribable
@@ -30,13 +32,12 @@ class MouseEventDetector: RComponent<MouseEventDetector.Props, RState>() {
         subscription.add(MouseMoveObservable
             .mouseMoveRx
             .throttleTime(100)
-            .map { ((window.innerWidth / 2.0) - it.clientX) to ((window.innerHeight / 2.0) - it.clientY) }
+            .map { (it.clientX - (window.innerWidth / 2.0)) to (it.clientY - (window.innerHeight / 2.0)) }
             .map { it.coerceIn(-100.0..100.0) }
             .map { (x, y) -> x.toFloat() to y.toFloat() }
-            .subscribeNext {
-                println("Mouse moved: $it")
-                //val message =
-                // props.serverConnection.sendMessage()
+            .subscribeNext { direction ->
+                println("Mouse moved: $direction")
+                props.serverConnection.sendMessage(SetPlayerDirection(direction).toMessage())
             })
     }
 

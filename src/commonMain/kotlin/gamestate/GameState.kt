@@ -8,7 +8,7 @@ open class GameState {
     val players: MutableMap<Long, Player> = mutableMapOf()
     val food: MutableMap<Long, Food> = mutableMapOf()
 
-    open fun submitAction(action: Action) {
+    open suspend fun submitAction(action: Action) {
         when(action) {
             is CreatePlayer -> players += action.id to action.toPlayer()
             is MovePlayer -> players[action.id]?.position = action.position
