@@ -1,4 +1,4 @@
-package connection
+package client
 
 import entities.plus
 import entities.times
@@ -10,11 +10,9 @@ import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import resources.Color
 import kotlin.coroutines.CoroutineContext
-import kotlin.reflect.KClass
 import kotlin.system.measureNanoTime
-import kotlin.system.measureTimeMillis
 
-class ClientConnection(
+class ConnectedClient(
     private val gameState: GameStateServer,
     private val connection: WebSocket
 ): CoroutineScope {
@@ -70,6 +68,8 @@ class ClientConnection(
     fun onClose(code: Int, reason: String, remote: Boolean) {
         disposables.clear()
         // Global scope because this scope is about to be killed
+        // It's unclear to me whether this is guaranteed to be executed after the CreatePlayer action.
+        // I guess we could await that first job.
         GlobalScope.launch {
             gameState.submitAction(DeletePlayer(clientId))
         }
