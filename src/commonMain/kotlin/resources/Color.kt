@@ -1,10 +1,14 @@
 package resources
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Color(
-    val r: Int,
-    val g: Int,
-    val b: Int
+    val r: Short,
+    val g: Short,
+    val b: Short
 ) {
+
     companion object {
         val Red = Color(255, 0, 0)
         val Green = Color(0, 255, 0)

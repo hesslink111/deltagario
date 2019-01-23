@@ -5,8 +5,9 @@ import kotlin.math.PI
 import kotlin.math.sqrt
 
 interface CircleEntity {
-    var position: Pair<Double, Double>
-    var size: Double
+    val id: Long
+    var position: Pair<Float, Float>
+    var size: Float
     var color: Color
 }
 

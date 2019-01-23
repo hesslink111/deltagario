@@ -3,7 +3,8 @@ package entities
 import resources.Color
 
 data class Food(
-    override var position: Pair<Double, Double>,
-    override var size: Double,
+    override val id: Long,
+    override var position: Pair<Float, Float>,
+    override var size: Float,
     override var color: Color
 ): CircleEntity
