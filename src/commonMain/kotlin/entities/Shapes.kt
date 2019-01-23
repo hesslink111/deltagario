@@ -35,3 +35,17 @@ fun Rect.collidesWith(circle: Circle): Boolean {
 
     return true
 }
+
+operator fun Pair<Float, Float>.times(float: Float): Pair<Float, Float> = (first * float) to (second * float)
+
+operator fun Pair<Float, Float>.plus(vector: Pair<Float, Float>) = (first + vector.first) to (second + vector.second)
+
+class Position private constructor() {
+    companion object {
+        fun random(): Pair<Float, Float> {
+            val x = (0 until 10000).random().toFloat() // TODO: Update to 10000
+            val y = (0 until 10000).random().toFloat() // TODO: Update to 10000
+            return x to y
+        }
+    }
+}

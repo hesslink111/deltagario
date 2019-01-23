@@ -15,6 +15,9 @@ class QuadTree(
     val subtrees: MutableList<QuadTree> = mutableListOf()
     var size = 0
 
+    // This seems kind of sketchy
+    var updateCounter = (Long.MIN_VALUE..Long.MAX_VALUE).random()
+
     operator fun plusAssign(entity: CircleEntity) {
         if(!this.collidesWith(entity)) {
             return
@@ -35,6 +38,7 @@ class QuadTree(
         // We cannot implicitly guarantee something was added, same element may have existed already.
         if(objectAdded) {
             size++
+            updateCounter++
         }
 
         if(size > 4 && subtrees.isEmpty()) {
@@ -69,6 +73,7 @@ class QuadTree(
 
         if(objectRemoved) {
             size--
+            updateCounter++
         }
 
         if(size <= 4 && subtrees.isNotEmpty()) {
