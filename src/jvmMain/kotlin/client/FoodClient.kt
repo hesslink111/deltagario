@@ -22,7 +22,7 @@ class FoodClient(
 
         launch {
             // TODO: Create 10000 food
-            for(i in 0 until 50) {
+            for(i in 0 until 10000) {
                 val action = CreateFood(gameState.generateId(), Color.random(), 50f, Position.random())
                 gameState.submitAction(action)
             }

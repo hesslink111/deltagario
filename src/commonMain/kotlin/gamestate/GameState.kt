@@ -2,20 +2,49 @@ package gamestate
 
 import entities.Food
 import entities.Player
+import structures.QuadTree
 
 open class GameState {
 
     val players: MutableMap<Long, Player> = mutableMapOf()
-    val food: MutableMap<Long, Food> = mutableMapOf()
+    val foods: MutableMap<Long, Food> = mutableMapOf()
+
+    val quadTree = QuadTree(Pair(5000f, 5000f), 10000f, 10000f)
 
     open suspend fun submitAction(action: Action) {
         when(action) {
-            is CreatePlayer -> players += action.id to action.toPlayer()
-            is MovePlayer -> players[action.id]?.position = action.position
-            is ResizePlayer -> players[action.id]?.size = action.size
-            is DeletePlayer -> players -= action.id
-            is CreateFood -> food += action.id to action.toFood()
-            is DeleteFood -> food -= action.id
+            is CreatePlayer -> {
+                val player = action.toPlayer()
+                players += action.id to player
+                quadTree += player
+            }
+            is MovePlayer -> {
+                val player = players[action.id] ?: return
+                quadTree -= player
+                player.position = action.position
+                quadTree += player
+            }
+            is ResizePlayer -> {
+                val player = players[action.id] ?: return
+                quadTree -= player
+                player.size = action.size
+                quadTree += player
+            }
+            is DeletePlayer -> {
+                val player = players[action.id] ?: return
+                players -= action.id
+                quadTree -= player
+            }
+            is CreateFood -> {
+                val food = action.toFood()
+                foods += action.id to food
+                quadTree += food
+            }
+            is DeleteFood -> {
+                val food = foods[action.id] ?: return
+                foods -= action.id
+                quadTree -= food
+            }
         }
     }
 }

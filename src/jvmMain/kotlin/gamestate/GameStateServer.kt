@@ -18,7 +18,7 @@ class GameStateServer: GameState() {
     val stateObservable: Observable<Action> = Observable.create<Action> { emitter ->
 
         val playerStateChanges = players.values.map { player -> player.toCreationAction() }
-        val foodStateChanges = food.values.map { food -> food.toCreationAction() }
+        val foodStateChanges = foods.values.map { food -> food.toCreationAction() }
 
         (playerStateChanges + foodStateChanges).forEach { action ->
             emitter.onNext(action)

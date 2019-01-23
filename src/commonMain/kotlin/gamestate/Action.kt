@@ -42,8 +42,6 @@ fun Action.toMessage(): Message = when(this) {
 
     // From player
     is SetPlayerDirection -> Message(6, ProtoBuf.dump(SetPlayerDirection.serializer(), this))
-
-    else -> throw IllegalArgumentException("Unknown action: $this")
 }
 
 fun Message.toAction(): Action = when(type) {
