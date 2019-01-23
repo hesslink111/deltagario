@@ -4,14 +4,16 @@ import resources.Color
 import kotlin.math.PI
 import kotlin.math.sqrt
 
-interface CircleEntity {
+interface CircleEntity: Circle {
     val id: Long
-    var position: Pair<Float, Float>
+    override var position: Pair<Float, Float>
     var size: Float
     var color: Color
-}
+    override var radius
+        get() = sqrt(size / PI.toFloat())
+        set(value) {}
 
-val CircleEntity.radius get() = sqrt(size / PI)
+}
 
 operator fun Pair<Float, Float>.times(float: Float): Pair<Float, Float> = (first * float) to (second * float)
 

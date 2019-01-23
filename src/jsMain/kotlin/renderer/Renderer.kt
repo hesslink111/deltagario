@@ -2,7 +2,6 @@ package renderer
 
 import entities.Food
 import entities.Player
-import entities.radius
 import kodando.rxjs.Subscription
 import kodando.rxjs.subscribeNext
 import kotlinx.css.Color
@@ -83,6 +82,7 @@ class Renderer: RComponent<Renderer.Props, Renderer.State>() {
                     attrs["cx"] = x
                     attrs["cy"] = y
                     attrs["r"] = food.radius
+                    attrs["fill"] = food.color.rgb
                 }
             }
         }
