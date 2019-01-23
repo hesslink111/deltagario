@@ -1,7 +1,5 @@
 import connection.ClientConnection
-import entities.Food
-import entities.Player
-import gamestate.GameState
+import gamestate.GameStateServer
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
@@ -11,7 +9,7 @@ actual object Platform {
 }
 
 actual fun nativeMain(args: Array<String>) {
-    val gameState = GameState()
+    val gameState = GameStateServer()
 
     val clients: MutableMap<WebSocket, ClientConnection> = mutableMapOf()
 

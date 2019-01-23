@@ -1,7 +1,6 @@
 package connection
 
-import entities.Player
-import gamestate.GameState
+import gamestate.*
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import org.java_websocket.WebSocket
@@ -9,22 +8,23 @@ import org.java_websocket.handshake.ClientHandshake
 import resources.Color
 
 class ClientConnection(
-    private val gameState: GameState,
+    private val gameState: GameStateServer,
     private val connection: WebSocket
 ) {
 
     private val disposables = CompositeDisposable()
+    private var clientId: Long = 0L
 
     fun onOpen(handshake: ClientHandshake) {
-        gameState.submitAction(GameState.Action.CreatePlayer(0L, "wally", Color.Blue, 10000.0, Pair(100.0, 100.0)))
+        clientId = (0L..Long.MAX_VALUE).random()
+        gameState.submitAction(CreatePlayer(clientId, "wally", Color.Blue, 10000f, Pair(100f, 100f)))
         disposables.add(gameState
             .stateObservable
             .observeOn(Schedulers.io())
-            .subscribe {
-                println("Got action: $it")
-                connection.send("action: $it")
+            .subscribe { action ->
+                connection.send(action.toMessage().toByteArray())
             })
-        gameState.submitAction(GameState.Action.MovePlayer(0L, Pair(150.0, 150.0)))
+        gameState.submitAction(MovePlayer(clientId, Pair(150f, 150f)))
     }
 
     fun onMessage(message: String) {
@@ -37,6 +37,6 @@ class ClientConnection(
 
     fun onClose(code: Int, reason: String, remote: Boolean) {
         disposables.clear()
-        gameState.submitAction(GameState.Action.DeletePlayer(0L))
+        gameState.submitAction(DeletePlayer(clientId))
     }
 }

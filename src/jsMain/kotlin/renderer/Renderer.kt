@@ -1,6 +1,7 @@
 package renderer
 
-import clientStateRx
+import entities.Food
+import entities.Player
 import entities.radius
 import kodando.rxjs.Subscription
 import kodando.rxjs.subscribeNext
@@ -12,22 +13,39 @@ import react.*
 import react.dom.RDOMBuilder
 import react.dom.tag
 import resources.rgb
-import state.ClientState
+import state.GameStateClient
 import styled.css
 import styled.styledSvg
 
-class Renderer: RComponent<RProps, Renderer.State>() {
+class Renderer: RComponent<Renderer.Props, Renderer.State>() {
+
+    interface Props: RProps {
+        var gameState: GameStateClient
+    }
 
     interface State: RState {
-        var clientState: ClientState
+        var players: List<Player>
+        var food: List<Food>
     }
 
     private val subscription = Subscription {}
 
     override fun componentWillMount() {
-        subscription.add(clientStateRx.subscribeNext { cState ->
-            setState { clientState = cState }
-        })
+        setState {
+            players = emptyList()
+            food = emptyList()
+        }
+        subscription.add(props.gameState
+            .stateChangeObservable
+            .subscribeNext {
+                // Update this later
+                val playersList = props.gameState.players.values.toList()
+                val foodList = props.gameState.food.values.toList()
+                setState {
+                    players = playersList
+                    food = foodList
+                }
+            })
     }
 
     override fun componentWillUnmount() {
@@ -41,7 +59,7 @@ class Renderer: RComponent<RProps, Renderer.State>() {
                 height = 100.vh
             }
 
-            state.clientState.players.forEach { player ->
+            state.players.forEach { player ->
                 val (x, y) = player.position
                 circle {
                     attrs["cx"] = x
@@ -59,7 +77,7 @@ class Renderer: RComponent<RProps, Renderer.State>() {
                 }
             }
 
-            state.clientState.food.forEach { food ->
+            state.food.forEach { food ->
                 val (x, y) = food.position
                 circle {
                     attrs["cx"] = x
@@ -71,7 +89,9 @@ class Renderer: RComponent<RProps, Renderer.State>() {
     }
 }
 
-inline fun RBuilder.renderer() = child(Renderer::class) {}
+inline fun RBuilder.renderer(gameState: GameStateClient) = child(Renderer::class) {
+    attrs.gameState = gameState
+}
 
 inline fun RBuilder.circle(block: RDOMBuilder<HTMLTag>.() -> Unit) {
     tag(block) { consumer -> HTMLTag(
@@ -92,6 +112,5 @@ inline fun RBuilder.text(block: RDOMBuilder<HTMLTag>.() -> Unit) {
         null,
         true,
         false
-    )
-    }
+    ) }
 }
