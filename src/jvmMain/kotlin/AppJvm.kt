@@ -1,7 +1,7 @@
-import connection.ClientConnection
+import client.ConnectedClient
+import client.FoodClient
 import gamestate.GameStateServer
 import org.java_websocket.WebSocket
-import org.java_websocket.framing.Framedata
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import java.nio.ByteBuffer
@@ -13,7 +13,10 @@ actual object Platform {
 actual fun nativeMain(args: Array<String>) {
     val gameState = GameStateServer()
 
-    val clients: MutableMap<WebSocket, ClientConnection> = mutableMapOf()
+    val clients: MutableMap<WebSocket, ConnectedClient> = mutableMapOf()
+
+    // Psuedoclients
+    val foodClient = FoodClient(gameState)
 
     // Figure out what to do here later
     val server = object: WebSocketServer() {
@@ -23,7 +26,7 @@ actual fun nativeMain(args: Array<String>) {
         }
 
         override fun onOpen(conn: WebSocket, handshake: ClientHandshake) {
-            val clientConnection = ClientConnection(gameState, conn)
+            val clientConnection = ConnectedClient(gameState, conn)
             clients += conn to clientConnection
             clientConnection.onOpen(handshake)
         }

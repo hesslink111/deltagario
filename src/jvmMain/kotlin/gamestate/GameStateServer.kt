@@ -1,16 +1,11 @@
 package gamestate
 
-import entities.plus
-import entities.times
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
-import javafx.application.Application.launch
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
-import kotlin.reflect.KClass
 
 class GameStateServer: GameState() {
 
@@ -34,6 +29,10 @@ class GameStateServer: GameState() {
                 emitter.onNext(action)
             })
     }.subscribeOn(gameStateScheduler)
+
+    private var nextId = 0L
+
+    suspend fun generateId(): Long = withContext(gameStateDispatcher) { nextId++ }
 
     override suspend fun submitAction(action: Action) = withContext(gameStateDispatcher) {
         super.submitAction(action)
