@@ -1,59 +1,86 @@
 package connection
 
 import gamestate.Message
-import gamestate.toAction
+import kodando.rxjs.BehaviorSubject
+import kodando.rxjs.Subject
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
+import org.khronos.webgl.set
 import org.w3c.dom.ARRAYBUFFER
 import org.w3c.dom.BinaryType
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.WebSocket
 import org.w3c.dom.events.Event
-import react.RBuilder
-import react.RComponent
-import react.RProps
-import react.RState
-import state.GameStateClient
 
-class ServerConnection: RComponent<ServerConnection.Props, RState>() {
+class ServerConnection {
 
-    interface Props: RProps {
-        var gameState: GameStateClient
+    private var socket: WebSocket? = null
+
+    private val socketMessageSubject = Subject<Message>()
+    val socketMessageObservable = socketMessageSubject.asObservable()
+
+    private val socketStateSubject = BehaviorSubject(SocketStates.Closed)
+    val socketStateObservable = socketStateSubject.asObservable()
+    val socketState get() = socketStateSubject.value
+
+    fun connect() {
+        try {
+            socket?.close()
+        } catch(ex: Exception) {
+            println("Exception while closing socket: $ex")
+        }
+        try {
+            socket = WebSocket("ws://localhost")
+        } catch(ex: Exception) {
+            println("Exception while creating socket: $ex")
+        }
+        socket?.binaryType = BinaryType.ARRAYBUFFER
+        socket?.onopen = ::onOpen
+        socket?.onclose = ::onClose
+        socket?.onerror = ::onError
+        socket?.onmessage = ::onMessage
+        socketStateSubject.next(SocketStates.Opening)
     }
 
-    private lateinit var socket: WebSocket
-
-    override fun componentDidMount() {
-        socket = WebSocket("ws://localhost")
-        socket.binaryType = BinaryType.ARRAYBUFFER
-
-        socket.onopen = { event: Event ->
-            println("Open on client")
-        }
-
-        socket.onmessage = { event: Event ->
-            event as MessageEvent
-            val data = Uint8Array(event.data as ArrayBuffer)
-            val bytes = ByteArray(data.length) { i -> data[i] }
-            val message = Message.fromByteArray(bytes)
-            val action = message.toAction()
-            println("Event: $action, length: ${bytes.size}")
-            props.gameState.submitAction(action)
+    fun sendMessage(message: Message) {
+        val bytes = message.toByteArray()
+        val array = Uint8Array(bytes.size).apply { bytes.forEachIndexed { i, b -> this[i] = b } }
+        try {
+            if(socket?.readyState == WebSocket.OPEN) {
+                socket?.send(array)
+            }
+        } catch(ex: Exception) {
+            println("Exception while sending message: $ex")
         }
     }
 
-    override fun componentWillUnmount() {
-        if(socket.readyState == WebSocket.OPEN || socket.readyState == WebSocket.CONNECTING) {
-            socket.close()
-        }
+    private fun onOpen(event: Event) {
+        println("Socket open")
+        socketStateSubject.next(SocketStates.Open)
     }
 
-    override fun RBuilder.render() {
+    private fun onMessage(event: Event) {
+        event as MessageEvent
+        val array = Uint8Array(event.data as ArrayBuffer)
+        val bytes = ByteArray(array.length) { i -> array[i] }
+        val message = Message.fromByteArray(bytes)
+        socketMessageSubject.next(message)
+    }
 
+    private fun onError(event: Event) {
+        println("Socket error: $event")
+    }
+
+    private fun onClose(event: Event) {
+        println("Socket closed")
+        socket = null
+        socketStateSubject.next(SocketStates.Closed)
     }
 }
 
-inline fun RBuilder.serverConnection(gameState: GameStateClient) = child(ServerConnection::class) {
-    attrs.gameState = gameState
+enum class SocketStates {
+    Open,
+    Opening,
+    Closed
 }

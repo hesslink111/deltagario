@@ -20,6 +20,9 @@ data class CreateFood(val id: Long, val color: Color, val size: Float, val posit
 @Serializable
 data class DeleteFood(val id: Long): Action()
 
+@Serializable
+data class SetPlayerDirection(val direction: Pair<Float, Float>): Action()
+
 class Message(val type: Int, val bytes: ByteArray) {
     companion object {
         fun fromByteArray(bytes: ByteArray) = Message(bytes[0].toInt(), bytes.sliceArray(1 until bytes.size))
@@ -29,12 +32,18 @@ class Message(val type: Int, val bytes: ByteArray) {
 }
 
 fun Action.toMessage(): Message = when(this) {
+    // From server only
     is CreatePlayer -> Message(0, ProtoBuf.dump(CreatePlayer.serializer(), this))
     is MovePlayer -> Message(1, ProtoBuf.dump(MovePlayer.serializer(), this))
     is ResizePlayer -> Message(2, ProtoBuf.dump(ResizePlayer.serializer(), this))
     is DeletePlayer -> Message(3, ProtoBuf.dump(DeletePlayer.serializer(), this))
     is CreateFood -> Message(4, ProtoBuf.dump(CreateFood.serializer(), this))
     is DeleteFood -> Message(5, ProtoBuf.dump(DeleteFood.serializer(), this))
+
+    // From player
+    is SetPlayerDirection -> Message(6, ProtoBuf.dump(SetPlayerDirection.serializer(), this))
+
+    else -> throw IllegalArgumentException("Unknown action: $this")
 }
 
 fun Message.toAction(): Action = when(type) {
@@ -44,5 +53,6 @@ fun Message.toAction(): Action = when(type) {
     3 -> ProtoBuf.load(DeletePlayer.serializer(), bytes)
     4 -> ProtoBuf.load(CreateFood.serializer(), bytes)
     5 -> ProtoBuf.load(DeleteFood.serializer(), bytes)
+    6 -> ProtoBuf.load(SetPlayerDirection.serializer(), bytes)
     else -> throw IllegalArgumentException("Unknown message type: $type")
 }

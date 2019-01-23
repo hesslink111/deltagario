@@ -1,8 +1,10 @@
 import connection.ClientConnection
 import gamestate.GameStateServer
 import org.java_websocket.WebSocket
+import org.java_websocket.framing.Framedata
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
+import java.nio.ByteBuffer
 
 actual object Platform {
     actual val name: String = "JVM"
@@ -27,7 +29,14 @@ actual fun nativeMain(args: Array<String>) {
         }
 
         override fun onMessage(conn: WebSocket, message: String) {
-            clients[conn]?.onMessage(message)
+            // Do nothing with strings
+        }
+
+        override fun onMessage(conn: WebSocket?, message: ByteBuffer?) {
+            if(message != null) {
+                val bytes = ByteArray(message.remaining()) { i -> message[i] }
+                clients[conn]?.onMessage(bytes)
+            }
         }
 
         override fun onError(conn: WebSocket?, ex: Exception) {
