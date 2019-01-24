@@ -25,17 +25,20 @@ class ConnectedClient(
 
     override val coroutineContext: CoroutineContext = Job()
 
-    fun onOpen(handshake: ClientHandshake) {
-        clientId = (0L..Long.MAX_VALUE).random()
-        launch { gameState.submitAction(CreatePlayer(clientId, "wally", Color.Blue, 10000f, Pair(100f, 100f))) }
+    fun onOpen() {
         disposables.add(gameState
             .stateObservable
             .observeOn(Schedulers.io())
             .subscribe { action ->
                 connection.send(action.toMessage().toByteArray())
             })
-        launch { gameState.submitAction(MovePlayer(clientId, Pair(150f, 150f))) }
-        launch { processPlayerActions() }
+
+        launch {
+            clientId = gameState.generateId()
+            gameState.submitAction(CreatePlayer(clientId, "wally", Color.Blue, 10000f, Pair(100f, 100f)))
+            connection.send(ClientPlayer(clientId).toMessage().toByteArray())
+            processPlayerActions()
+        }
     }
 
     fun onMessage(bytes: ByteArray) {
@@ -65,7 +68,7 @@ class ConnectedClient(
         ex.printStackTrace()
     }
 
-    fun onClose(code: Int, reason: String, remote: Boolean) {
+    fun onClose() {
         disposables.clear()
         // Global scope because this scope is about to be killed
         // It's unclear to me whether this is guaranteed to be executed after the CreatePlayer action.

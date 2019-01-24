@@ -28,7 +28,7 @@ actual fun nativeMain(args: Array<String>) {
         override fun onOpen(conn: WebSocket, handshake: ClientHandshake) {
             val clientConnection = ConnectedClient(gameState, conn)
             clients += conn to clientConnection
-            clientConnection.onOpen(handshake)
+            clientConnection.onOpen()
         }
 
         override fun onMessage(conn: WebSocket, message: String) {
@@ -51,7 +51,7 @@ actual fun nativeMain(args: Array<String>) {
         }
 
         override fun onClose(conn: WebSocket, code: Int, reason: String, remote: Boolean) {
-            clients[conn]?.onClose(code, reason, remote)
+            clients[conn]?.onClose()
             clients -= conn
         }
     }

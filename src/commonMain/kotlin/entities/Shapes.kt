@@ -43,8 +43,8 @@ operator fun Pair<Float, Float>.plus(vector: Pair<Float, Float>) = (first + vect
 class Position private constructor() {
     companion object {
         fun random(): Pair<Float, Float> {
-            val x = (0 until 10000).random().toFloat() // TODO: Update to 10000
-            val y = (0 until 10000).random().toFloat() // TODO: Update to 10000
+            val x = (0 until 10000).random().toFloat()
+            val y = (0 until 10000).random().toFloat()
             return x to y
         }
     }

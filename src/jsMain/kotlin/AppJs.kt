@@ -2,6 +2,7 @@ import connection.ServerConnection
 import connection.serverConnector
 import react.dom.render
 import renderer.mouseEventDetector
+import renderer.renderSurface
 import renderer.renderer
 import state.GameStateClient
 import kotlin.browser.document
@@ -17,7 +18,7 @@ actual fun nativeMain(args: Array<String>) {
 
     render(document.getElementById("react-root")) {
         serverConnector(serverConnection, gameState)
-        renderer(gameState)
+        renderSurface(gameState)
         mouseEventDetector(serverConnection)
     }
 }
