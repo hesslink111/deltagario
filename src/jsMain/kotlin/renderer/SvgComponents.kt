@@ -26,3 +26,14 @@ inline fun RBuilder.text(block: RDOMBuilder<HTMLTag>.() -> Unit) {
         false
     ) }
 }
+
+inline fun RBuilder.g(block: RDOMBuilder<HTMLTag>.() -> Unit) {
+    tag(block) { consumer -> HTMLTag(
+        "g",
+        consumer,
+        emptyMap(),
+        null,
+        true,
+        false
+    ) }
+}

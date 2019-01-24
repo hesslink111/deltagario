@@ -1,14 +1,13 @@
 package renderer
 
+import entities.Player
 import kodando.rxjs.Subscription
+import kodando.rxjs.operators.throttleTime
 import kodando.rxjs.subscribeNext
-import kotlinx.css.vh
-import kotlinx.css.vw
 import react.*
 import state.GameStateClient
 import structures.QuadTree
-import styled.css
-import styled.styledSvg
+import kotlin.browser.window
 
 class Renderer: RComponent<Renderer.Props, Renderer.State>() {
 
@@ -17,6 +16,7 @@ class Renderer: RComponent<Renderer.Props, Renderer.State>() {
     }
 
     interface State: RState {
+        var player: Player?
         var quadTree: QuadTree
     }
 
@@ -24,12 +24,15 @@ class Renderer: RComponent<Renderer.Props, Renderer.State>() {
 
     override fun componentWillMount() {
         setState {
+            player = null
             quadTree = props.gameState.quadTree
         }
         subscription.add(props.gameState
             .stateChangeObservable
+            .throttleTime(33)
             .subscribeNext {
                 setState {
+                    player = props.gameState.players[props.gameState.clientPlayerId]
                     quadTree = props.gameState.quadTree
                 }
             })
@@ -40,11 +43,11 @@ class Renderer: RComponent<Renderer.Props, Renderer.State>() {
     }
 
     override fun RBuilder.render() {
-        styledSvg {
-            css {
-                width = 100.vw
-                height = 100.vh
-            }
+        g {
+            val (x, y) = state.player?.position ?: Pair(500f, 500f)
+            val transformX = -x + window.innerWidth / 2
+            val transformY = -y + window.innerHeight / 2
+            attrs["transform"] = "translate($transformX, $transformY)"
 
             quadTreeEntityRenderer(state.quadTree)
         }
