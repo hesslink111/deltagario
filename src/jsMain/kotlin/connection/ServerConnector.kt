@@ -22,9 +22,11 @@ class ServerConnector: RComponent<ServerConnector.Props, RState>(), CoroutineSco
     }
 
     private val subscription = Subscription {}
-    override val coroutineContext = Job()
+    private lateinit var job: Job
+    override val coroutineContext get() = job
 
     override fun componentDidMount() {
+        job = Job()
         subscription.add(props.serverConnection
             .socketStateObservable
             .subscribeNext { state ->

@@ -23,9 +23,11 @@ class ConnectedClient(
     // Actions
     private var playerDirection: SetPlayerDirection? = null
 
-    override val coroutineContext: CoroutineContext = Job()
+    private lateinit var job: Job
+    override val coroutineContext get() = Job()
 
     fun onOpen() {
+        job = Job()
         disposables.add(gameState
             .stateObservable
             .observeOn(Schedulers.io())
