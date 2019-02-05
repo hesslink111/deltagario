@@ -19,6 +19,8 @@ data class DeletePlayer(val id: Long): Action()
 data class CreateFood(val id: Long, val color: Color, val size: Float, val position: Pair<Float, Float>): Action()
 @Serializable
 data class DeleteFood(val id: Long): Action()
+@Serializable
+data class ResetAll(val unused: Int = 0): Action()
 
 @Serializable
 data class SetPlayerDirection(val direction: Pair<Float, Float>): Action()
@@ -42,12 +44,13 @@ fun Action.toMessage(): Message = when(this) {
     is DeletePlayer -> Message(3, ProtoBuf.dump(DeletePlayer.serializer(), this))
     is CreateFood -> Message(4, ProtoBuf.dump(CreateFood.serializer(), this))
     is DeleteFood -> Message(5, ProtoBuf.dump(DeleteFood.serializer(), this))
+    is ResetAll -> Message(6, ProtoBuf.dump(ResetAll.serializer(), this))
 
     // From player
-    is SetPlayerDirection -> Message(6, ProtoBuf.dump(SetPlayerDirection.serializer(), this))
+    is SetPlayerDirection -> Message(7, ProtoBuf.dump(SetPlayerDirection.serializer(), this))
 
     // To player
-    is ClientPlayer -> Message(7, ProtoBuf.dump(ClientPlayer.serializer(), this))
+    is ClientPlayer -> Message(8, ProtoBuf.dump(ClientPlayer.serializer(), this))
 }
 
 fun Message.toAction(): Action = when(type) {
@@ -57,7 +60,8 @@ fun Message.toAction(): Action = when(type) {
     3 -> ProtoBuf.load(DeletePlayer.serializer(), bytes)
     4 -> ProtoBuf.load(CreateFood.serializer(), bytes)
     5 -> ProtoBuf.load(DeleteFood.serializer(), bytes)
-    6 -> ProtoBuf.load(SetPlayerDirection.serializer(), bytes)
-    7 -> ProtoBuf.load(ClientPlayer.serializer(), bytes)
+    6 -> ProtoBuf.load(ResetAll.`$serializer`, bytes)
+    7 -> ProtoBuf.load(SetPlayerDirection.serializer(), bytes)
+    8 -> ProtoBuf.load(ClientPlayer.serializer(), bytes)
     else -> throw IllegalArgumentException("Unknown message type: $type")
 }

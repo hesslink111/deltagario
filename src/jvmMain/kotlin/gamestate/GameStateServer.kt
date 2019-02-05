@@ -15,12 +15,12 @@ class GameStateServer: GameState() {
 
     private val stateChangeSubject = PublishSubject.create<Action>()
 
+    private var nextId = 0L
+
+    suspend fun generateId(): Long = withContext(gameStateDispatcher) { nextId++ }
+
     val stateObservable: Observable<Action> = Observable.create<Action> { emitter ->
-
-        val playerStateChanges = players.values.map { player -> player.toCreationAction() }
-        val foodStateChanges = foods.values.map { food -> food.toCreationAction() }
-
-        (playerStateChanges + foodStateChanges).forEach { action ->
+        currentStateActions().forEach { action ->
             emitter.onNext(action)
         }
 
@@ -29,10 +29,6 @@ class GameStateServer: GameState() {
                 emitter.onNext(action)
             })
     }.subscribeOn(gameStateScheduler)
-
-    private var nextId = 0L
-
-    suspend fun generateId(): Long = withContext(gameStateDispatcher) { nextId++ }
 
     override suspend fun submitAction(action: Action) = withContext(gameStateDispatcher) {
         super.submitAction(action)

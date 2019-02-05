@@ -82,6 +82,13 @@ class QuadTree(
             subtrees.clear()
         }
     }
+
+    fun clear() {
+        entities.clear()
+        subtrees.clear()
+        size = 0
+        updateCounter++
+    }
 }
 
 private inline fun valueChanged(crossinline valueGetter: () -> Int, crossinline block: () -> Unit): Boolean {
