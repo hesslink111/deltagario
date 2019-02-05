@@ -11,6 +11,14 @@ class GameStateClient: GameState() {
 
     var clientPlayerId: Long? = null
 
+    val stateObservable: Observable<Action> = Observable<Action> { emitter ->
+        currentStateActions().forEach { action ->
+            emitter.next(action)
+        }
+
+        return@Observable stateChangeSubject.subscribe(emitter)
+    }
+
     override suspend fun submitAction(action: Action) {
         if(action is ClientPlayer) {
             clientPlayerId = action.id
@@ -19,6 +27,4 @@ class GameStateClient: GameState() {
         super.submitAction(action)
         stateChangeSubject.next(action)
     }
-
-    val stateChangeObservable = stateChangeSubject.asObservable()
 }

@@ -11,6 +11,13 @@ open class GameState {
 
     val quadTree = QuadTree(Pair(5000f, 5000f), 10000f, 10000f)
 
+    fun currentStateActions(): List<Action> {
+        val playerStateActions = players.values.map { player -> player.toCreationAction() }
+        val foodStateActions = foods.values.map { food -> food.toCreationAction() }
+
+        return playerStateActions + foodStateActions
+    }
+
     open suspend fun submitAction(action: Action) {
         when(action) {
             is CreatePlayer -> {
@@ -44,6 +51,11 @@ open class GameState {
                 val food = foods[action.id] ?: return
                 foods -= action.id
                 quadTree -= food
+            }
+            is ResetAll -> {
+                foods.clear()
+                players.clear()
+                quadTree.clear()
             }
         }
     }

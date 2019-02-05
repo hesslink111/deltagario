@@ -1,5 +1,6 @@
 package connection
 
+import gamestate.ResetAll
 import gamestate.toAction
 import kodando.rxjs.Subscription
 import kodando.rxjs.subscribeNext
@@ -33,7 +34,10 @@ class ServerConnector: RComponent<ServerConnector.Props, RState>(), CoroutineSco
                 when(state) {
                     SocketStates.Open -> {}
                     SocketStates.Opening -> {}
-                    SocketStates.Closed -> launch { reconnectDelayed() }
+                    SocketStates.Closed -> launch {
+                        props.gameState.submitAction(ResetAll())
+                        reconnectDelayed()
+                    }
                 }
             })
 
@@ -41,7 +45,6 @@ class ServerConnector: RComponent<ServerConnector.Props, RState>(), CoroutineSco
             .socketMessageObservable
             .subscribeNext { message ->
                 val action = message.toAction()
-                println("Got action from server: $action")
                 launch { props.gameState.submitAction(action) }
             })
     }
