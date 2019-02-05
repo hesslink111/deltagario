@@ -78,7 +78,6 @@ class Renderer: RComponent<Renderer.Props, RState>(), CoroutineScope {
                 val (x, y) = clientPlayer?.position ?: Pair(500f, 500f)
                 val transformX = -x + window.innerWidth / 2f
                 val transformY = -y + window.innerHeight / 2f
-
                 g.setAttribute("transform", "translate($transformX, $transformY)")
             })
     }
